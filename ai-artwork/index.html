@@ -29,10 +29,7 @@
     <section class="section">
         <h2 class="section-title">자료</h2>
         <ul class="material-text-list">
-            <li><a href="#">1주차 - ComfyUI 설치 및 기본 세팅</a></li>
-            <li><a href="#">2주차 - 기본 워크플로우 구성</a></li>
-            <li><a href="#">3주차 - ControlNet & IP-Adapter</a></li>
-            <li><a href="#">4주차 - 실전 프로젝트</a></li>
+            <li><a href="#">상담자료</a></li>
         </ul>
     </section>
 
@@ -48,78 +45,12 @@
             </div>
             <div class="qna-sort">
                 <button class="qna-sort-btn active" data-sort="latest">최신순</button>
-                <button class="qna-sort-btn" data-sort="views">조회순</button>
+                <button class="qna-sort-btn" data-sort="likes">추천순</button>
             </div>
         </div>
 
-        <!-- QnA List -->
-        <div class="qna-list" id="qnaList">
-            <div class="qna-item-open" data-views="42" data-date="2026-03-15">
-                <div class="qna-q">
-                    <span class="qna-badge">Q</span>
-                    <span class="qna-question-text">ComfyUI 설치가 안 돼요. 어떻게 하나요?</span>
-                </div>
-                <div class="qna-a">
-                    <span class="qna-badge qna-badge-a">A</span>
-                    <span>Python 3.10 이상이 설치되어 있는지 확인해주세요. Windows의 경우 portable 버전을 권장합니다. 1주차 자료의 설치 가이드를 참고하시고, 그래도 안 되면 수업 시간에 질문해주세요.</span>
-                </div>
-            </div>
-
-            <div class="qna-item-open" data-views="38" data-date="2026-03-14">
-                <div class="qna-q">
-                    <span class="qna-badge">Q</span>
-                    <span class="qna-question-text">GPU가 없어도 수업을 들을 수 있나요?</span>
-                </div>
-                <div class="qna-a">
-                    <span class="qna-badge qna-badge-a">A</span>
-                    <span>네, 가능합니다. 수업 중에는 클라우드 GPU 환경을 안내해드리며, CPU로도 기본적인 실습은 가능합니다. 다만 생성 속도가 느릴 수 있습니다.</span>
-                </div>
-            </div>
-
-            <div class="qna-item-open" data-views="25" data-date="2026-03-13">
-                <div class="qna-q">
-                    <span class="qna-badge">Q</span>
-                    <span class="qna-question-text">수업 자료는 언제 올라오나요?</span>
-                </div>
-                <div class="qna-a">
-                    <span class="qna-badge qna-badge-a">A</span>
-                    <span>각 주차 수업 시작 전까지 이 페이지에 업로드됩니다. 알림이 필요하시면 수업 시간에 말씀해주세요.</span>
-                </div>
-            </div>
-
-            <div class="qna-item-open" data-views="19" data-date="2026-03-12">
-                <div class="qna-q">
-                    <span class="qna-badge">Q</span>
-                    <span class="qna-question-text">커스텀 노드는 어떻게 설치하나요?</span>
-                </div>
-                <div class="qna-a">
-                    <span class="qna-badge qna-badge-a">A</span>
-                    <span>ComfyUI Manager를 먼저 설치하시면 편리합니다. custom_nodes 폴더에 git clone으로 직접 설치하거나, Manager UI에서 검색하여 설치할 수 있습니다.</span>
-                </div>
-            </div>
-
-            <div class="qna-item-open" data-views="15" data-date="2026-03-10">
-                <div class="qna-q">
-                    <span class="qna-badge">Q</span>
-                    <span class="qna-question-text">모델 파일은 어디에 넣어야 하나요?</span>
-                </div>
-                <div class="qna-a">
-                    <span class="qna-badge qna-badge-a">A</span>
-                    <span>models/checkpoints 폴더에 체크포인트(.safetensors)를 넣으시면 됩니다. LoRA는 models/loras, VAE는 models/vae 폴더에 각각 넣어주세요.</span>
-                </div>
-            </div>
-
-            <div class="qna-item-open" data-views="12" data-date="2026-03-08">
-                <div class="qna-q">
-                    <span class="qna-badge">Q</span>
-                    <span class="qna-question-text">VRAM이 부족하다는 에러가 나요.</span>
-                </div>
-                <div class="qna-a">
-                    <span class="qna-badge qna-badge-a">A</span>
-                    <span>ComfyUI 실행 시 --lowvram 옵션을 추가해보세요. 이미지 해상도를 512x512로 낮추거나, fp16 모델을 사용하면 VRAM 사용량을 줄일 수 있습니다.</span>
-                </div>
-            </div>
-        </div>
+        <!-- QnA List (loaded from JSON) -->
+        <div class="qna-list" id="qnaList"></div>
 
         <!-- Pagination -->
         <div class="qna-pagination" id="qnaPagination"></div>
@@ -142,52 +73,67 @@
     var PER_PAGE = 3;
     var currentPage = 1;
     var currentSort = 'latest';
+    var allData = [];
+    var filtered = [];
+
     var list = document.getElementById('qnaList');
     var pagination = document.getElementById('qnaPagination');
     var searchInput = document.getElementById('qnaSearch');
 
-    function getItems() {
-        return Array.from(list.querySelectorAll('.qna-item-open'));
+    // Fetch QnA data from JSON
+    fetch('../data/qna-ai-artwork.json')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            allData = data;
+            filterAndSort();
+        })
+        .catch(function(err) {
+            list.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Q&A 데이터를 불러올 수 없습니다.</p>';
+        });
+
+    function renderItem(item) {
+        return '<div class="qna-item-open" data-id="' + item.id + '">' +
+            '<div class="qna-q">' +
+                '<span class="qna-badge">Q</span>' +
+                '<span class="qna-question-text">' + item.question + '</span>' +
+            '</div>' +
+            '<div class="qna-a">' +
+                '<span class="qna-badge qna-badge-a">A</span>' +
+                '<span>' + item.answer + '</span>' +
+            '</div>' +
+            '<div class="qna-footer">' +
+                '<button class="qna-like-btn" data-id="' + item.id + '">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>' +
+                    '<span class="like-count">' + item.likes + '</span>' +
+                '</button>' +
+                '<span class="qna-date">' + item.date + '</span>' +
+            '</div>' +
+        '</div>';
     }
 
     function filterAndSort() {
         var query = searchInput.value.toLowerCase();
-        var items = getItems();
-
-        items.forEach(function(item) {
-            var text = item.textContent.toLowerCase();
-            item.dataset.hidden = text.indexOf(query) === -1 ? '1' : '0';
+        filtered = allData.filter(function(item) {
+            return item.question.toLowerCase().indexOf(query) !== -1 ||
+                   item.answer.toLowerCase().indexOf(query) !== -1;
         });
 
-        var visible = items.filter(function(item) { return item.dataset.hidden !== '1'; });
-
-        if (currentSort === 'views') {
-            visible.sort(function(a, b) { return parseInt(b.dataset.views) - parseInt(a.dataset.views); });
+        if (currentSort === 'likes') {
+            filtered.sort(function(a, b) { return b.likes - a.likes; });
         } else {
-            visible.sort(function(a, b) { return b.dataset.date.localeCompare(a.dataset.date); });
+            filtered.sort(function(a, b) { return b.date.localeCompare(a.date); });
         }
-
-        visible.forEach(function(item) { list.appendChild(item); });
 
         currentPage = 1;
-        render(visible);
+        render();
     }
 
-    function render(visible) {
-        if (!visible) {
-            visible = getItems().filter(function(item) { return item.dataset.hidden !== '1'; });
-        }
-        var totalPages = Math.ceil(visible.length / PER_PAGE);
+    function render() {
+        var totalPages = Math.ceil(filtered.length / PER_PAGE);
         var start = (currentPage - 1) * PER_PAGE;
-        var end = start + PER_PAGE;
+        var pageItems = filtered.slice(start, start + PER_PAGE);
 
-        visible.forEach(function(item, i) {
-            item.style.display = (i >= start && i < end) ? '' : 'none';
-        });
-
-        getItems().filter(function(item) { return item.dataset.hidden === '1'; }).forEach(function(item) {
-            item.style.display = 'none';
-        });
+        list.innerHTML = pageItems.map(renderItem).join('');
 
         var html = '';
         for (var p = 1; p <= totalPages; p++) {
@@ -214,7 +160,19 @@
         }
     });
 
-    filterAndSort();
+    // Like button handler
+    list.addEventListener('click', function(e) {
+        var btn = e.target.closest('.qna-like-btn');
+        if (!btn) return;
+        var id = parseInt(btn.dataset.id);
+        var item = allData.find(function(d) { return d.id === id; });
+        if (item) {
+            item.likes++;
+            var countEl = btn.querySelector('.like-count');
+            countEl.textContent = item.likes;
+            btn.classList.add('liked');
+        }
+    });
 })();
 </script>
 

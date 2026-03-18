@@ -295,6 +295,47 @@ body {
     line-height: 1.7;
 }
 
+/* QnA Footer */
+.qna-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--divider);
+}
+
+.qna-like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    background: var(--bg);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qna-like-btn:hover,
+.qna-like-btn.liked {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.like-count {
+    font-weight: 500;
+}
+
+.qna-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
 /* Pagination */
 .qna-pagination {
     display: flex;

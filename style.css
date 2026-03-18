@@ -65,17 +65,17 @@ body {
 
 .card {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 14px;
-    padding: 28px 24px;
+    padding: 24px;
     text-decoration: none;
     color: var(--text-primary);
     box-shadow: var(--card-shadow);
     transition: box-shadow 0.2s, transform 0.2s;
-    aspect-ratio: auto;
+    aspect-ratio: 1 / 1;
 }
 
 .card:hover {
@@ -101,6 +101,7 @@ body {
     height: 20px;
     color: var(--text-muted);
     flex-shrink: 0;
+    align-self: flex-end;
     transition: transform 0.2s, color 0.2s;
 }
 

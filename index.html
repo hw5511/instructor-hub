@@ -3,39 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>양희우 강사 허브</title>
+    <title>양희우 강사</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Profile Section -->
-<header class="profile">
-    <div class="profile-inner">
-        <div class="profile-avatar">
-            <div class="avatar-placeholder">HW</div>
-        </div>
-        <div class="profile-info">
+<div class="container">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-name">
             <h1>양희우</h1>
-            <p class="profile-role">SBS아카데미 컴퓨터아트 강남 | AI & Web 강사</p>
-            <p class="profile-desc">AI 아트웍, 바이브코딩, 웹개발을 가르치는 실무형 강사입니다.</p>
-            <div class="profile-tags">
-                <span class="tag">AI Artwork</span>
-                <span class="tag">Web Development</span>
-                <span class="tag">ComfyUI</span>
-                <span class="tag">Claude Code</span>
-            </div>
+            <p class="header-subtitle">SBS아카데미 컴퓨터아트 강남 | AI & Web 강사</p>
         </div>
-    </div>
-</header>
+        <p class="header-desc">제가 운영중인 강의에 대한 정보와 자료를 정리해둔 사이트입니다!</p>
+    </header>
 
-<!-- Lecture Cards Section -->
-<main class="lectures">
-    <h2 class="section-title">Lectures</h2>
-    <div class="card-grid" id="lectureGrid">
-        <!-- Cards populated by JS or static -->
-    </div>
-</main>
+    <!-- Divider -->
+    <hr class="divider">
 
-<script src="app.js"></script>
+    <!-- Lecture List -->
+    <section class="lectures">
+        <a href="#" class="lecture-item">
+            <span class="lecture-title">AI 아트웍 (ComfyUI)</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="lecture-item">
+            <span class="lecture-title">웹 개발</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="lecture-item">
+            <span class="lecture-title">바이브코딩 웹</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="lecture-item">
+            <span class="lecture-title">AI 에이전트</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </section>
+</div>
+
 </body>
 </html>

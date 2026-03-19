@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 에이전트 - 양희우 강사</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Back Link -->
+    <a href="../" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Home
+    </a>
+
+    <!-- Header -->
+    <header class="lecture-header">
+        <h1>AI 에이전트</h1>
+        <p class="lecture-sub">MCP / Automation</p>
+        <p class="lecture-desc">AI 에이전트의 개념부터 실전 구축까지 배우는 강의입니다. MCP(Model Context Protocol)를 활용한 도구 연동, 자동화 워크플로우 설계, 나만의 에이전트 시스템 구성 방법을 익혀보세요.</p>
+    </header>
+
+    <!-- Materials Section -->
+    <section class="section">
+        <h2 class="section-title">자료</h2>
+        <ul class="material-text-list">
+            <li><a href="#">상담자료</a></li>
+        </ul>
+    </section>
+
+    <!-- QnA Section -->
+    <section class="section">
+        <h2 class="section-title">Q&A</h2>
+
+        <!-- Search & Sort -->
+        <div class="qna-toolbar">
+            <div class="qna-search">
+                <svg class="qna-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" class="qna-search-input" placeholder="질문 검색..." id="qnaSearch">
+            </div>
+            <div class="qna-sort">
+                <button class="qna-sort-btn active" data-sort="latest">최신순</button>
+                <button class="qna-sort-btn" data-sort="likes">추천순</button>
+            </div>
+        </div>
+
+        <!-- QnA List (loaded from JSON) -->
+        <div class="qna-list" id="qnaList"></div>
+
+        <!-- Pagination -->
+        <div class="qna-pagination" id="qnaPagination"></div>
+
+        <!-- Chatbot -->
+        <div class="chatbot-section">
+            <p class="chatbot-label">챗봇에 물어보세요</p>
+            <div class="chatbot-input-wrap">
+                <input type="text" class="chatbot-input" placeholder="궁금한 점을 입력하세요..." id="chatbotInput">
+                <button class="chatbot-send" id="chatbotSend">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+(function() {
+    var PER_PAGE = 3;
+    var currentPage = 1;
+    var currentSort = 'latest';
+    var allData = [];
+    var filtered = [];
+
+    var list = document.getElementById('qnaList');
+    var pagination = document.getElementById('qnaPagination');
+    var searchInput = document.getElementById('qnaSearch');
+
+    fetch('../data/qna-ai-agent.json')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            allData = data;
+            filterAndSort();
+        })
+        .catch(function(err) {
+            list.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Q&A 데이터를 불러올 수 없습니다.</p>';
+        });
+
+    function renderItem(item) {
+        return '<div class="qna-item-open" data-id="' + item.id + '">' +
+            '<div class="qna-q">' +
+                '<span class="qna-badge">Q</span>' +
+                '<span class="qna-question-text">' + item.question + '</span>' +
+            '</div>' +
+            '<div class="qna-a">' +
+                '<span class="qna-badge qna-badge-a">A</span>' +
+                '<span>' + item.answer + '</span>' +
+            '</div>' +
+            '<div class="qna-footer">' +
+                '<button class="qna-like-btn" data-id="' + item.id + '">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>' +
+                    '<span class="like-count">' + item.likes + '</span>' +
+                '</button>' +
+                '<span class="qna-date">' + item.date + '</span>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function filterAndSort() {
+        var query = searchInput.value.toLowerCase();
+        filtered = allData.filter(function(item) {
+            return item.question.toLowerCase().indexOf(query) !== -1 ||
+                   item.answer.toLowerCase().indexOf(query) !== -1;
+        });
+
+        if (currentSort === 'likes') {
+            filtered.sort(function(a, b) { return b.likes - a.likes; });
+        } else {
+            filtered.sort(function(a, b) { return b.date.localeCompare(a.date); });
+        }
+
+        currentPage = 1;
+        render();
+    }
+
+    function render() {
+        var totalPages = Math.ceil(filtered.length / PER_PAGE);
+        var start = (currentPage - 1) * PER_PAGE;
+        var pageItems = filtered.slice(start, start + PER_PAGE);
+
+        list.innerHTML = pageItems.map(renderItem).join('');
+
+        var html = '';
+        for (var p = 1; p <= totalPages; p++) {
+            html += '<button class="page-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+        }
+        pagination.innerHTML = html;
+    }
+
+    searchInput.addEventListener('input', filterAndSort);
+
+    document.querySelectorAll('.qna-sort-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.qna-sort-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            currentSort = btn.dataset.sort;
+            filterAndSort();
+        });
+    });
+
+    pagination.addEventListener('click', function(e) {
+        if (e.target.classList.contains('page-btn')) {
+            currentPage = parseInt(e.target.dataset.page);
+            render();
+        }
+    });
+
+    list.addEventListener('click', function(e) {
+        var btn = e.target.closest('.qna-like-btn');
+        if (!btn) return;
+        var id = parseInt(btn.dataset.id);
+        var item = allData.find(function(d) { return d.id === id; });
+        if (item) {
+            item.likes++;
+            var countEl = btn.querySelector('.like-count');
+            countEl.textContent = item.likes;
+            btn.classList.add('liked');
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
